@@ -5,7 +5,7 @@ env = Env()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env.read_env(BASE_DIR / '.env_old')
+env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env.str('SECRET_KEY')
 

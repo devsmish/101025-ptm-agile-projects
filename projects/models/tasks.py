@@ -16,26 +16,26 @@ from django.contrib.auth.models import User
 Дата обновления: поле, поддерживающее и дату, и время, заполняется автоматически всегда
 Дата удаления: поле, в котором может ничего не быть"""
 class Task(models.Model):
-    title = models.CharField(max_length=100, validators=[MinLengthValidator(10)], unique=True)
-    description = models.TextField(max_length=250, blank=True)
+    title = models.CharField(max_length=100, validators=[MinLengthValidator(10)])
+    description = models.TextField(blank=True)
     status = models.CharField(max_length=15, choices=statuses, default='1')
     priority = models.CharField(max_length=15, choices=priorities)
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='tasks')
 
     due_date = models.DateField()
-    tags = models.ManyToManyField(
-        Tag,
-        related_name='tasks'
-    )
+    tags = models.ManyToManyField(Tag, related_name='tasks')
 
-    assignee = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="tasks",
-    )
+    assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="tasks")
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Task'
+        verbose_name_plural = 'Tasks'
+        ordering = ['-due_date', 'assignee']
+        unique_together = ['title', 'project']
+
+    def __str__(self):
+        return self.title
