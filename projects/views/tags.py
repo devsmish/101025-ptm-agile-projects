@@ -1,4 +1,3 @@
-from django.core.serializers import serialize
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from rest_framework import status
@@ -96,6 +95,7 @@ def create_tag(request: Request):
 def delete_tag(request: Request, tag_id: int):
     tag = get_object_or_404(Tag, id=tag_id)
     serialized_data = TagSerializer(tag)
+    tag.delete()
 
     return JsonResponse(
         data=serialized_data.data,
