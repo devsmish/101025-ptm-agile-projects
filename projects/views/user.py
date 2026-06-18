@@ -1,8 +1,8 @@
 from django.utils.timezone import now
 from rest_framework import status
 from rest_framework.decorators import action
-
-from projects.serializers import UserListSerializer, UserDetailSerializer
+from rest_framework.generics import ListAPIView, CreateAPIView
+from projects.serializers import UserListSerializer, UserDetailSerializer, RegisterUserSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from projects.models import User, Task
@@ -30,3 +30,25 @@ class UserViewSet(ModelViewSet):
             serializer = self.get_serializer(obj)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
         return Response(data="User is already inactive", status=status.HTTP_400_BAD_REQUEST)
+
+"""Создайте классовое отображение UserListGenericView для получения списка пользователей.
+Переопределите метод get_queryset для получения списка пользователей по конкретному проекту, если фильтр был передан, иначе должен отдаваться список всех пользователей.
+Зарегистрируйте новый эндпоинт, протестируйте его, чтобы убедиться, что он работает.
+Закомментируйте все изменения, создайте запрос на слияние."""
+
+class UserListGenericView(ListAPIView):
+
+    serializer_class = UserListSerializer
+
+    def get_queryset(self):
+        queryset = User.objects.all()
+        project_name = self.request.query_params.get('project')
+        if project_name:
+            queryset = queryset.filter(project__name__iexact=project_name.strip())
+        return queryset
+
+
+"""Напишите классовое отображение, которое будет принимать данные из запроса и создавать пользователя."""
+class UserRegisterGenericAPIView(CreateAPIView):
+    serializer_class = RegisterUserSerializer
+    queryset = User.objects.all()
